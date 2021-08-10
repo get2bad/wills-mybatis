@@ -11,10 +11,7 @@ import com.wills.mybatis.util.entity.ParameterMapping;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +21,7 @@ import java.util.List;
  * @Author 王帅
  * @Version 1.0
  * @Description
+ * Sql执行器 的 默认实现 ，如果有其他的实现方法，可以实现这个 Executor 接口，重写里面的方法即可~
  */
 public class SimpleExecutor implements Executor {
 
@@ -54,10 +52,10 @@ public class SimpleExecutor implements Executor {
 
             //反射
             Field declaredField = paramtertypeClass.getDeclaredField(content);
-            //暴力访问
+            // 设置可以随意访问
             declaredField.setAccessible(true);
             Object o = declaredField.get(params[0]);
-
+            // 空出间隔符
             preparedStatement.setObject(i + 1, o);
 
         }
@@ -81,7 +79,7 @@ public class SimpleExecutor implements Executor {
                 // 字段的值
                 Object value = resultSet.getObject(columnName);
 
-                //使用反射或者内省，根据数据库表和实体的对应关系，完成封装
+                //使用反射，根据数据库表和实体的对应关系，完成封装
                 PropertyDescriptor propertyDescriptor = new PropertyDescriptor(columnName, resultTypeClass);
                 Method writeMethod = propertyDescriptor.getWriteMethod();
                 writeMethod.invoke(o, value);
@@ -92,6 +90,66 @@ public class SimpleExecutor implements Executor {
 
         }
         return (List<E>) objects;
+
+    }
+
+    @Override
+    public <T> void insert(Configuration configuration, MappedStatement statement, T obj) throws Exception {
+        connection = configuration.getDataSource().getConnection();
+        String sql = statement.getSql();
+        BoundSql boundSql = getBoundSql(sql);
+        sql = boundSql.getSql();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        // 进行条件赋值
+        Class<?> parameterType = statement.getParameterType();
+        Field[] fields = parameterType.getDeclaredFields();
+        //
+        for (int i = 1; i < fields.length; i++) {
+            PropertyDescriptor propertyDescriptor = new PropertyDescriptor(fields[i].getName(), parameterType);
+            Method readMethod = propertyDescriptor.getReadMethod();
+            Object value = readMethod.invoke(obj);
+            preparedStatement.setObject(i, value);
+        }
+        preparedStatement.execute();
+    }
+
+    @Override
+    public <T> void updateById(Configuration configuration, MappedStatement statement, T obj) throws Exception {
+        connection = configuration.getDataSource().getConnection();
+        String sql = statement.getSql();
+        BoundSql boundSql = getBoundSql(sql);
+        sql = boundSql.getSql();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        Class<?> parameterType = statement.getParameterType();
+        Field[] fields = parameterType.getDeclaredFields();
+        for (int i = 1; i < fields.length; i++) {
+            PropertyDescriptor propertyDescriptor = new PropertyDescriptor(fields[i].getName(), parameterType);
+            Method readMethod = propertyDescriptor.getReadMethod();
+            Object value = readMethod.invoke(obj);
+            preparedStatement.setObject(i, value);
+        }
+        // 赋值 id
+        PropertyDescriptor propertyDescriptor = new PropertyDescriptor(fields[0].getName(), parameterType);
+        Method readMethod = propertyDescriptor.getReadMethod();
+        Object value = readMethod.invoke(obj);
+        preparedStatement.setObject(fields.length, value);
+
+        preparedStatement.execute();
+    }
+
+    @Override
+    public void delete(Configuration configuration, MappedStatement statement, Object id) throws Exception {
+        connection = configuration.getDataSource().getConnection();
+
+        String sql = statement.getSql();
+
+        BoundSql boundSql = getBoundSql(sql);
+        sql = boundSql.getSql();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        // 这里要注意，preparedStatement 起始的 index 是 1  ！！！ 神坑！
+        preparedStatement.setInt(1, (Integer) id);
+
+        preparedStatement.execute();
 
     }
 

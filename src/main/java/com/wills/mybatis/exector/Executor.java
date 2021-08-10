@@ -17,5 +17,11 @@ public interface Executor {
 
     public <E> List<E> query(Configuration configuration, MappedStatement statement,Object[] param) throws Exception;
 
+    public <T> void insert(Configuration configuration, MappedStatement statement, T obj) throws Exception;
+
+    public <T> void updateById(Configuration configuration, MappedStatement statement, T obj) throws Exception;
+
+    public void delete(Configuration configuration, MappedStatement statement, Object id) throws Exception;
+
     public void close() throws Exception;
 }

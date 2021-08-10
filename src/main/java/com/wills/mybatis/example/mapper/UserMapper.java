@@ -16,4 +16,10 @@ public interface UserMapper {
     public List<User> selectList();
 
     public User selectOne(Integer id,String name);
+
+    public void insert(User user);
+
+    public void updateById(User user);
+
+    public void deleteById(Integer id);
 }

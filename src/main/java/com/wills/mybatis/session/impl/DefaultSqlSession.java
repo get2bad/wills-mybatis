@@ -15,6 +15,7 @@ import java.util.List;
  * @Author 王帅
  * @Version 1.0
  * @Description
+ * SqlSession 的默认实现， 如果有其他的实现，就可以创建其他的类，实现 SqlSession接口，重写里面的方法即可
  */
 public class DefaultSqlSession implements SqlSession {
 
@@ -39,10 +40,41 @@ public class DefaultSqlSession implements SqlSession {
     @Override
     public <T> T selectOne(String statementId, Object... args) throws Exception {
         List<T> list = selectList(statementId, args);
-        if(list.size() != 1){
+        if(list == null || list.size() == 0) {
+            return null;
+        }
+        if(list.size() > 1){
             throw new RuntimeException("您的查询条件返回的记录包含多个！不允许调用本方法！请您检查查询条件！");
         }
         return list.get(0);
+    }
+
+    @Override
+    public <T> void insert(String statementId, T obj) throws Exception {
+        MappedStatement statement = configuration.getMappedStatementMap().get(statementId);
+        if(statement == null){
+            throw new RuntimeException("未找到对应的statement");
+        }
+        executor.insert(configuration,statement,obj);
+    }
+
+    @Override
+    public <T> void updateById(String statementId, T obj) throws Exception {
+        MappedStatement statement = configuration.getMappedStatementMap().get(statementId);
+        if(statement == null){
+            throw new RuntimeException("未找到对应的statement");
+        }
+        executor.updateById(configuration,statement,obj);
+    }
+
+    @Override
+    public void deleteById(String statementId, Object id)  throws Exception{
+        // 找到这个 statementId
+        MappedStatement mappedStatement = configuration.getMappedStatementMap().get(statementId);
+        if(mappedStatement == null){
+            throw new RuntimeException("未找到对应的statement");
+        }
+        executor.delete(configuration, mappedStatement, id);
     }
 
     @Override

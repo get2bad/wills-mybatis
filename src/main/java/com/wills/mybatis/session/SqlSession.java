@@ -28,5 +28,11 @@ public interface SqlSession {
      */
     public <T> T selectOne(String statementId,Object... args) throws Exception;
 
+    public <T> void insert(String statementId,T obj) throws Exception;
+
+    public <T> void updateById(String statementId,T obj) throws Exception;
+
+    public void deleteById(String statementId,Object id) throws Exception;
+
     public void close() throws Exception;
 }

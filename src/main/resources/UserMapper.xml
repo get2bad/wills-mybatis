@@ -6,4 +6,13 @@
     <select id="selectOne" parameterType="com.wills.mybatis.example.entity.User" resultType="com.wills.mybatis.example.entity.User">
         Select * from user where id= #{id} and name = #{name}
     </select>
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        delete from user where id = #{id}
+    </delete>
+    <insert id="insert" parameterType="com.wills.mybatis.example.entity.User">
+        insert into user(name,age,remark) values(#{name},#{age},#{remark});
+    </insert>
+    <update id="updateById" parameterType="com.wills.mybatis.example.entity.User">
+        update user set name = #{name},age=#{age},remark=#{remark} where id = #{id}
+    </update>
 </mapper>

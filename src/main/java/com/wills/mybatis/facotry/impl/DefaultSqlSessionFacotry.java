@@ -11,7 +11,7 @@ import com.wills.mybatis.session.impl.DefaultSqlSession;
  * @Author 王帅
  * @Version 1.0
  * @Description
- * 默认的 SqlSessionFactory
+ * 默认的 SqlSessionFactory，作为默认实现，如果有其他的需求，可以实现 SqlSessionFactory 接口，自己重写 openSession方法
  */
 public class DefaultSqlSessionFacotry implements SqlSessionFactory {
 

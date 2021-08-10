@@ -32,6 +32,12 @@ public class XMLMapperBuilder {
         String namespace = root.attributeValue("namespace");
         // 拿到 select
         List<Element> nodes = root.selectNodes("//select");
+        List<Element> deletes = root.selectNodes("//delete");
+        List<Element> updates = root.selectNodes("//update");
+        List<Element> inserts = root.selectNodes("//insert");
+        nodes.addAll(deletes);
+        nodes.addAll(updates);
+        nodes.addAll(inserts);
         // 读取select的内容
         for (Element node : nodes) {
             String id = node.attributeValue("id");
@@ -39,8 +45,14 @@ public class XMLMapperBuilder {
             String resultType = node.attributeValue("resultType");
             String sql = node.getTextTrim();
             // 转换 参数类 和 返回值类，方便后期 Class.newInstance 使用
-            Class<?> parameterTypeClass = getClassNameAsClassObj(parameterType);
-            Class<?> resultTypeClass = getClassNameAsClassObj(resultType);
+            Class<?> parameterTypeClass = null;
+            if(parameterType != null){
+                parameterTypeClass = getClassNameAsClassObj(parameterType);
+            }
+            Class<?> resultTypeClass = null;
+            if(resultType != null) {
+                resultTypeClass = getClassNameAsClassObj(resultType);
+            }
 
             MappedStatement statement = new MappedStatement();
             statement.setId(id);

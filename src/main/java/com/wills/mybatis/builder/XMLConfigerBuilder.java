@@ -73,6 +73,7 @@ public class XMLConfigerBuilder {
         String host = properties.getProperty("host");
         String port = properties.getProperty("port");
         String database = properties.getProperty("database");
+        String option = properties.getProperty("option");
         if(host == null || port == null || database == null){
             throw new RuntimeException("关键信息没有传入！请您检查 WillsMybatisConfig.xml中的数据库配置的Properties中的host、port、database是否正确配置！");
         }
@@ -89,6 +90,10 @@ public class XMLConfigerBuilder {
                 sb.append(port);
                 sb.append("/");
                 sb.append(database);
+                if(option != null){
+                    sb.append("?");
+                    sb.append(option);
+                }
             };break;
             default: sb.append("none");break;
         }

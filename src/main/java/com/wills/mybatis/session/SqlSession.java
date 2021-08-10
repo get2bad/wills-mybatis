@@ -34,5 +34,7 @@ public interface SqlSession {
 
     public void deleteById(String statementId,Object id) throws Exception;
 
+    public <T> T getMapper(Class<?> mapperClass);
+
     public void close() throws Exception;
 }

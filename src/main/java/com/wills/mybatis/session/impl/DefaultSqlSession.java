@@ -7,6 +7,8 @@ import com.wills.mybatis.exector.Executor;
 import com.wills.mybatis.exector.impl.SimpleExecutor;
 import com.wills.mybatis.session.SqlSession;
 
+import java.lang.reflect.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,7 +41,12 @@ public class DefaultSqlSession implements SqlSession {
 
     @Override
     public <T> T selectOne(String statementId, Object... args) throws Exception {
-        List<T> list = selectList(statementId, args);
+//        List<T> list = selectList(statementId, args);
+        MappedStatement mappedStatement = configuration.getMappedStatementMap().get(statementId);
+        if(mappedStatement == null || StringUtils.isNullOrEmpty(mappedStatement.getSql())){
+            throw new RuntimeException("提取不到对应mapper文件下的相关sql信息，请您重试！");
+        }
+        List<T> list = executor.query(configuration, mappedStatement, args);
         if(list == null || list.size() == 0) {
             return null;
         }
@@ -75,6 +82,46 @@ public class DefaultSqlSession implements SqlSession {
             throw new RuntimeException("未找到对应的statement");
         }
         executor.delete(configuration, mappedStatement, id);
+    }
+
+    @Override
+    public <T> T getMapper(Class<?> mapperClass) {
+        T res = (T) Proxy.newProxyInstance(mapperClass.getClassLoader(), new Class[]{mapperClass}, new InvocationHandler() {
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                // selectOne
+                String methodName = method.getName();
+                // className:namespace
+                String className = method.getDeclaringClass().getName();
+                //statementid
+                String key = className + "." + methodName;
+                MappedStatement mappedStatement =
+                        configuration.getMappedStatementMap().get(key);
+                Type genericReturnType = method.getGenericReturnType();
+                ArrayList arrayList = new ArrayList<>();
+                //判断是否实现泛型类型参数化
+                if (genericReturnType instanceof ParameterizedType) {
+
+                    if(methodName.equals("selectOne")){
+                        return selectOne(key, args);
+                    }
+
+                    if(methodName.equals("selectList")){
+                        return selectList(key, args);
+                    }
+
+                    if(methodName.equals("deleteById")){
+                        deleteById(key, args);
+                    }
+
+                    if(methodName.equals("updateById")){
+                        updateById(key, args);
+                    }
+                }
+                return null;
+            }
+        });
+        return res;
     }
 
     @Override

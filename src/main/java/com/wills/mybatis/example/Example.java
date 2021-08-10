@@ -2,6 +2,7 @@ package com.wills.mybatis.example;
 
 import com.wills.mybatis.builder.SqlSessionFactoryBuilder;
 import com.wills.mybatis.example.entity.User;
+import com.wills.mybatis.example.mapper.UserMapper;
 import com.wills.mybatis.facotry.SqlSessionFactory;
 import com.wills.mybatis.session.SqlSession;
 import com.wills.mybatis.util.Resources;
@@ -126,6 +127,28 @@ public class Example {
         sqlSession.updateById("com.wills.mybatis.example.mapper.UserMapper.updateById", user);
         System.out.println("======================查询全部=======================");
         List<User> users = sqlSession.selectList("com.wills.mybatis.example.mapper.UserMapper.selectList");
+        for (User user1 : users) {
+            System.out.println(user1);
+        }
+    }
+
+    @Test
+    public void test6() throws Exception {
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build();
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        UserMapper mapper = (UserMapper) sqlSession.getMapper(UserMapper.class);
+
+        //调用
+        User user = new User();
+        user.setId(5);
+        user.setName("wills");
+        user.setAge(24);
+        user.setRemark(new String("一个酷酷的boy".getBytes(StandardCharsets.UTF_8)));
+        System.out.println("======================条件查询=======================");
+        User one = mapper.selectOne(5, "wills");
+        System.out.println(one);
+        System.out.println("======================查询全部=======================");
+        List<User> users = mapper.selectList();
         for (User user1 : users) {
             System.out.println(user1);
         }

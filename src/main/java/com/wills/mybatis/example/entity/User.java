@@ -1,4 +1,4 @@
-package com.wills.mybatis.entity;
+package com.wills.mybatis.example.entity;
 
 /**
  * @ClassName User

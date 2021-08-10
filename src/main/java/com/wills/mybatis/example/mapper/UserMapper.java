@@ -1,6 +1,6 @@
 package com.wills.mybatis.example.mapper;
 
-import com.wills.mybatis.entity.User;
+import com.wills.mybatis.example.entity.User;
 
 import java.util.List;
 

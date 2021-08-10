@@ -37,7 +37,7 @@ public class XMLConfigerBuilder {
         Document document = new SAXReader().read(inputStream);
         // 拿到根element
         Element element = document.getRootElement();
-        List<Element> list = element.selectNodes("//properties");
+        List<Element> list = element.selectNodes("//property");
         // 生成一个 Properties(本质还是一个map结构)
         Properties properties = new Properties();
         for (Element e : list) {
@@ -80,7 +80,7 @@ public class XMLConfigerBuilder {
         StringBuilder sb = new StringBuilder();
         String driverClass = properties.getProperty("driverClass");
         switch (driverClass){
-            case "com.jdbc.mysql.Driver": {
+            case "com.mysql.jdbc.Driver": {
                 // 如果是mysql系列：
                 // 实例： jdbc:mysql://47.93.126.142:3306/uav
                 sb.append("jdbc:mysql://");

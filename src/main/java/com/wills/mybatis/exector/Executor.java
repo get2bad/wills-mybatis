@@ -13,7 +13,7 @@ import java.util.List;
  * @Description
  * sql 执行器
  */
-public interface Exector {
+public interface Executor {
 
     public <E> List<E> query(Configuration configuration, MappedStatement statement,Object[] param) throws Exception;
 

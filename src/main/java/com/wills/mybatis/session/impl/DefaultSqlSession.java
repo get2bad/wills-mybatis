@@ -1,9 +1,10 @@
 package com.wills.mybatis.session.impl;
 
+import com.mysql.jdbc.StringUtils;
 import com.wills.mybatis.config.Configuration;
 import com.wills.mybatis.config.MappedStatement;
-import com.wills.mybatis.exector.Exector;
-import com.wills.mybatis.exector.impl.SimpleExector;
+import com.wills.mybatis.exector.Executor;
+import com.wills.mybatis.exector.impl.SimpleExecutor;
 import com.wills.mybatis.session.SqlSession;
 
 import java.util.List;
@@ -18,17 +19,20 @@ import java.util.List;
 public class DefaultSqlSession implements SqlSession {
 
     private Configuration configuration;
-    private Exector exector;
+    private Executor executor;
 
     public DefaultSqlSession(Configuration configuration) {
         this.configuration = configuration;
-        exector = new SimpleExector();
+        executor = new SimpleExecutor();
     }
 
     @Override
     public <E> List<E> selectList(String statementId, Object... args) throws Exception {
         MappedStatement mappedStatement = configuration.getMappedStatementMap().get(statementId);
-        List<E> query = exector.query(configuration, mappedStatement, args);
+        if(mappedStatement == null || StringUtils.isNullOrEmpty(mappedStatement.getSql())){
+            throw new RuntimeException("提取不到对应mapper文件下的相关sql信息，请您重试！");
+        }
+        List<E> query = executor.query(configuration, mappedStatement, args);
         return query;
     }
 
@@ -43,6 +47,6 @@ public class DefaultSqlSession implements SqlSession {
 
     @Override
     public void close() throws Exception {
-        exector.close();
+        executor.close();
     }
 }

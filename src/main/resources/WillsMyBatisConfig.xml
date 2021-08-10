@@ -1,0 +1,10 @@
+<configuration>
+    <property name="driverClass" value="com.mysql.jdbc.Driver"></property>
+    <property name="username" value="root"></property>
+    <property name="password" value="123456"></property>
+    <property name="host" value="localhost"></property>
+    <property name="port" value="3306"></property>
+    <property name="database" value="test"></property>
+
+    <mapper resource="UserMapper.xml"></mapper>
+</configuration>

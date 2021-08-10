@@ -1,0 +1,9 @@
+<mapper namespace="com.wills.mybatis.example.mapper.UserMapper">
+    <select id="selectList" parameterType="com.wills.mybatis.entity.User" resultType="com.wills.mybatis.entity.User">
+        Select * from user
+    </select>
+
+    <select id="selectOne" parameterType="com.wills.mybatis.entity.User" resultType="com.wills.mybatis.entity.User">
+        Select * from user where id= #{id} and name = #{name}
+    </select>
+</mapper>

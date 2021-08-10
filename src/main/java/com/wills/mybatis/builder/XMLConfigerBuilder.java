@@ -83,7 +83,7 @@ public class XMLConfigerBuilder {
         switch (driverClass){
             case "com.mysql.jdbc.Driver": {
                 // 如果是mysql系列：
-                // 实例： jdbc:mysql://47.93.126.142:3306/uav
+                // 实例： jdbc:mysql://localhost:3306/uav
                 sb.append("jdbc:mysql://");
                 sb.append(host);
                 sb.append(":");

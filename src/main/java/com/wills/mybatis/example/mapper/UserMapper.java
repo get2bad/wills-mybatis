@@ -1,6 +1,7 @@
 package com.wills.mybatis.example.mapper;
 
 import com.wills.mybatis.example.entity.User;
+import com.wills.mybatis.template.BaseMapper;
 
 import java.util.List;
 
@@ -11,15 +12,15 @@ import java.util.List;
  * @Version 1.0
  * @Description
  */
-public interface UserMapper {
+public interface UserMapper extends BaseMapper<User> {
 
-    public List<User> selectList();
-
-    public User selectOne(Integer id,String name);
-
-    public void insert(User user);
-
-    public void updateById(User user);
-
-    public void deleteById(Integer id);
+//    public List<User> selectList();
+//
+//    public User selectOne(User user);
+//
+//    public void insert(User user);
+//
+//    public void updateById(User user);
+//
+//    public void deleteById(Integer id);
 }

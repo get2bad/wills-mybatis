@@ -98,7 +98,7 @@ public class XMLConfigerBuilder {
             default: sb.append("none");break;
         }
 
-        log.info("jdbc 连接url：" + sb.toString());
+        log.warn("jdbc 连接url：" + sb);
         return sb.toString();
     }
 }

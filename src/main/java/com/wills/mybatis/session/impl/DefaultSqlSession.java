@@ -3,12 +3,15 @@ package com.wills.mybatis.session.impl;
 import com.mysql.jdbc.StringUtils;
 import com.wills.mybatis.config.Configuration;
 import com.wills.mybatis.config.MappedStatement;
+import com.wills.mybatis.example.entity.User;
 import com.wills.mybatis.exector.Executor;
 import com.wills.mybatis.exector.impl.SimpleExecutor;
 import com.wills.mybatis.session.SqlSession;
+import org.apache.log4j.Logger;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -21,6 +24,9 @@ import java.util.List;
  */
 public class DefaultSqlSession implements SqlSession {
 
+    final Logger log = Logger.getLogger(this.getClass());
+
+    private String mapperClassName;
     private Configuration configuration;
     private Executor executor;
 
@@ -29,11 +35,19 @@ public class DefaultSqlSession implements SqlSession {
         executor = new SimpleExecutor();
     }
 
+    public MappedStatement doubleCheckStatement(){
+        MappedStatement mappedStatement = configuration.getMappedStatementMap().get(mapperClassName);
+        if(mappedStatement == null || StringUtils.isNullOrEmpty(mappedStatement.getSql())){
+            throw new RuntimeException("提取不到对应mapper文件下的相关sql信息，请您重试！");
+        }
+        return mappedStatement;
+    }
+
     @Override
     public <E> List<E> selectList(String statementId, Object... args) throws Exception {
         MappedStatement mappedStatement = configuration.getMappedStatementMap().get(statementId);
         if(mappedStatement == null || StringUtils.isNullOrEmpty(mappedStatement.getSql())){
-            throw new RuntimeException("提取不到对应mapper文件下的相关sql信息，请您重试！");
+            mappedStatement = doubleCheckStatement();
         }
         List<E> query = executor.query(configuration, mappedStatement, args);
         return query;
@@ -44,7 +58,7 @@ public class DefaultSqlSession implements SqlSession {
 //        List<T> list = selectList(statementId, args);
         MappedStatement mappedStatement = configuration.getMappedStatementMap().get(statementId);
         if(mappedStatement == null || StringUtils.isNullOrEmpty(mappedStatement.getSql())){
-            throw new RuntimeException("提取不到对应mapper文件下的相关sql信息，请您重试！");
+            mappedStatement = doubleCheckStatement();
         }
         List<T> list = executor.query(configuration, mappedStatement, args);
         if(list == null || list.size() == 0) {
@@ -58,20 +72,20 @@ public class DefaultSqlSession implements SqlSession {
 
     @Override
     public <T> void insert(String statementId, T obj) throws Exception {
-        MappedStatement statement = configuration.getMappedStatementMap().get(statementId);
-        if(statement == null){
-            throw new RuntimeException("未找到对应的statement");
+        MappedStatement mappedStatement = configuration.getMappedStatementMap().get(statementId);
+        if(mappedStatement == null){
+            mappedStatement = doubleCheckStatement();
         }
-        executor.insert(configuration,statement,obj);
+        executor.insert(configuration,mappedStatement,obj);
     }
 
     @Override
     public <T> void updateById(String statementId, T obj) throws Exception {
-        MappedStatement statement = configuration.getMappedStatementMap().get(statementId);
-        if(statement == null){
-            throw new RuntimeException("未找到对应的statement");
+        MappedStatement mappedStatement = configuration.getMappedStatementMap().get(statementId);
+        if(mappedStatement == null){
+            mappedStatement = doubleCheckStatement();
         }
-        executor.updateById(configuration,statement,obj);
+        executor.updateById(configuration,mappedStatement,obj);
     }
 
     @Override
@@ -79,7 +93,7 @@ public class DefaultSqlSession implements SqlSession {
         // 找到这个 statementId
         MappedStatement mappedStatement = configuration.getMappedStatementMap().get(statementId);
         if(mappedStatement == null){
-            throw new RuntimeException("未找到对应的statement");
+            mappedStatement = doubleCheckStatement();
         }
         executor.delete(configuration, mappedStatement, id);
     }
@@ -91,32 +105,36 @@ public class DefaultSqlSession implements SqlSession {
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 // selectOne
                 String methodName = method.getName();
+                mapperClassName = mapperClass.getName() + "." + methodName;
                 // className:namespace
                 String className = method.getDeclaringClass().getName();
                 //statementid
                 String key = className + "." + methodName;
-                MappedStatement mappedStatement =
-                        configuration.getMappedStatementMap().get(key);
                 Type genericReturnType = method.getGenericReturnType();
-                ArrayList arrayList = new ArrayList<>();
                 //判断是否实现泛型类型参数化
-                if (genericReturnType instanceof ParameterizedType) {
+//                if (genericReturnType instanceof ParameterizedType) {
+//
+//                }
+                log.warn("反射代理调用了： " + methodName);
+                if("selectOne".equals(methodName)){
+                    Object one = selectOne(key, args[0]);
+                    return one;
+                }
 
-                    if(methodName.equals("selectOne")){
-                        return selectOne(key, args);
-                    }
+                if("selectList".equals(methodName)){
+                    return selectList(key, args);
+                }
 
-                    if(methodName.equals("selectList")){
-                        return selectList(key, args);
-                    }
+                if("insert".equals(methodName)){
+                    insert(key, args[0]);
+                }
 
-                    if(methodName.equals("deleteById")){
-                        deleteById(key, args);
-                    }
+                if("deleteById".equals(methodName)){
+                    deleteById(key, args[0]);
+                }
 
-                    if(methodName.equals("updateById")){
-                        updateById(key, args);
-                    }
+                if("updateById".equals(methodName)){
+                    updateById(key, args[0]);
                 }
                 return null;
             }

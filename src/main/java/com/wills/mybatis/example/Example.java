@@ -144,13 +144,19 @@ public class Example {
         user.setName("wills");
         user.setAge(24);
         user.setRemark(new String("一个酷酷的boy".getBytes(StandardCharsets.UTF_8)));
+        mapper.insert(user);
         System.out.println("======================条件查询=======================");
-        User one = mapper.selectOne(5, "wills");
+        User one = mapper.selectOne(user);
         System.out.println(one);
+        System.out.println("======================修改用户=======================");
+        user.setAge(23);
+        mapper.updateById(user);
         System.out.println("======================查询全部=======================");
         List<User> users = mapper.selectList();
         for (User user1 : users) {
             System.out.println(user1);
         }
+        System.out.println("======================删除用户=======================");
+        mapper.deleteById(users.get(users.size() - 1).getId());
     }
 }

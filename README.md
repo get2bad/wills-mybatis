@@ -2,12 +2,30 @@
 
 > 本仓库用作属于wills的自制mybatis框架的源码，后续会不断完善，敬请期待
 
-## 要实现的功能
+
+
+## 实现的功能
 
 + 配置文件完善(详情请见[resource](./src/main/resources))<font color=red>已完成</font>
 + 基本解析 XXMapper.xml 功能(包含Select、Update、Delete、Insert)(暂不支持条件if条件判断)<font color=green>半完成</font>
-+ 基本的[BaseMapper<T>](./src/main/java/com/wills/mybatis/template/BaseMapper.java)基础功能(CRUD，类似于MyBatis-Plus)<font color=red>已完成</font>
-+ 注解支持(暂不支持 要实现的注解@Sql @Select @Insert @Update @Delete)<font color=orange>未完成</font>
++ 基本的[BaseMapper\<T>](./src/main/java/com/wills/mybatis/template/BaseMapper.java)基础功能(CRUD，类似于MyBatis-Plus)<font color=red>已完成</font>
++ 注解支持(实现的注解@Sql  @Select @Insert @Update @Delete)<font color=red>已完成</font>
+
+
+
+## 测试类
+
+[测试类](./src/main/java/com/wills/mybatis/example/Example.java)
+
+[BaseMapper\<T>](./src/main/java/com/wills/mybatis/template/BaseMapper.java)
+
+[UserMapper(主要看注解)](./src/main/java/com/wills/mybatis/example/mapper/UserMapper.java)
+
+[配置文件WillsMyBatisConfig.xml](./src/main/resources/WillsMyBatisConfig.xml)
+
+[UserMapper.xml](./src/main/resources/UserMapper.xml)
+
+
 
 ## 实现步骤
 

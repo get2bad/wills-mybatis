@@ -19,9 +19,17 @@ public interface Executor {
 
     public <T> void insert(Configuration configuration, MappedStatement statement, T obj) throws Exception;
 
+    public <T> void insertAdapter(Configuration configuration, String sql, T obj) throws Exception;
+
     public <T> void updateById(Configuration configuration, MappedStatement statement, T obj) throws Exception;
 
-    public void delete(Configuration configuration, MappedStatement statement, Object id) throws Exception;
+    public <T> void updateByIdAdapter(Configuration configuration, String sql, T obj) throws Exception;
+
+    public void deleteById(Configuration configuration, MappedStatement statement, Object id) throws Exception;
+
+    public void deleteByIdAdapter(Configuration configuration, String sql, Object id) throws Exception;
 
     public void close() throws Exception;
+
+    <X> List<X> execute(Configuration configuration, String sql, X obj,Class<?> resultTypeClass) throws Exception;
 }

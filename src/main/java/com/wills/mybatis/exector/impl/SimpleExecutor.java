@@ -92,6 +92,78 @@ public class SimpleExecutor implements Executor {
     }
 
     @Override
+    public <X> List<X> execute(Configuration configuration, String sql, X obj,Class<?> resultTypeClass) throws Exception {
+        connection = configuration.getDataSource().getConnection();
+        BoundSql boundSql = getBoundSql(sql);
+        sql = boundSql.getSql();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+        if(obj != null){
+            Class<?> paramtertypeClass = obj.getClass();
+
+            List<ParameterMapping> parameterMappingList = boundSql.getParameterMappingList();
+            for (int i = 0; i < parameterMappingList.size(); i++) {
+                ParameterMapping parameterMapping = parameterMappingList.get(i);
+                String content = parameterMapping.getContent();
+                //反射
+                Field declaredField = paramtertypeClass.getDeclaredField(content);
+                // 设置可以随意访问
+                declaredField.setAccessible(true);
+                Object o = declaredField.get(obj);
+                // 空出间隔符
+                preparedStatement.setObject(i + 1, o);
+
+            }
+        }
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+        if(resultSet == null){
+            return null;
+        }
+        ArrayList<Object> objects = new ArrayList<>();
+
+        // 6. 封装返回结果集
+        while (resultSet.next()) {
+            Object o = resultTypeClass.newInstance();
+            //元数据
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            for (int i = 1; i <= metaData.getColumnCount(); i++) {
+
+                // 字段名
+                String columnName = metaData.getColumnName(i);
+                // 字段的值
+                Object value = resultSet.getObject(columnName);
+
+                //使用反射，根据数据库表和实体的对应关系，完成封装
+                PropertyDescriptor propertyDescriptor = new PropertyDescriptor(columnName, resultTypeClass);
+                Method writeMethod = propertyDescriptor.getWriteMethod();
+                writeMethod.invoke(o, value);
+
+
+            }
+            objects.add(o);
+
+        }
+        return (List<X>) objects;
+    }
+
+    /**
+     * 自适应方法，自动适应下面的insert方法
+     * @param configuration
+     * @param sql
+     * @param obj
+     * @param <T>
+     * @throws Exception
+     */
+    @Override
+    public <T> void insertAdapter(Configuration configuration, String sql, T obj) throws Exception {
+        MappedStatement mappedStatement = new MappedStatement();
+        mappedStatement.setSql(sql);
+        mappedStatement.setParameterType(obj.getClass());
+        insert(configuration, mappedStatement, obj);
+    }
+
+    @Override
     public <T> void insert(Configuration configuration, MappedStatement statement, T obj) throws Exception {
         connection = configuration.getDataSource().getConnection();
         String sql = statement.getSql();
@@ -136,7 +208,23 @@ public class SimpleExecutor implements Executor {
     }
 
     @Override
-    public void delete(Configuration configuration, MappedStatement statement, Object id) throws Exception {
+    public <T> void updateByIdAdapter(Configuration configuration, String sql, T obj) throws Exception {
+        MappedStatement mappedStatement = new MappedStatement();
+        mappedStatement.setSql(sql);
+        mappedStatement.setParameterType(obj.getClass());
+        updateById(configuration, mappedStatement, obj);
+    }
+
+    @Override
+    public void deleteByIdAdapter(Configuration configuration, String sql, Object id) throws Exception {
+        MappedStatement mappedStatement = new MappedStatement();
+        mappedStatement.setSql(sql);
+        mappedStatement.setParameterType(id.getClass());
+        deleteById(configuration, mappedStatement, id);
+    }
+
+    @Override
+    public void deleteById(Configuration configuration, MappedStatement statement, Object id) throws Exception {
         connection = configuration.getDataSource().getConnection();
 
         String sql = statement.getSql();

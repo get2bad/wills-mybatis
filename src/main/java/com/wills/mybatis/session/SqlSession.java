@@ -20,6 +20,8 @@ public interface SqlSession {
      */
     public <E> List<E> selectList(String statementId,Object... args) throws Exception;
 
+    public <X> List<X> execute(String sql,X obj,Class<?> resultTypeClass) throws Exception;
+
     /**
      * @param statementId 我们在 com.wills.mybatis.builder.XMLMapperBuilder 下读取的statementid
      * @param args 传入的参数
@@ -30,9 +32,15 @@ public interface SqlSession {
 
     public <T> void insert(String statementId,T obj) throws Exception;
 
+    public <T> void insertAdapter(String sql,T obj) throws Exception;
+
     public <T> void updateById(String statementId,T obj) throws Exception;
 
+    public <T> void updateByIdAdapter(String sql,T obj) throws Exception;
+
     public void deleteById(String statementId,Object id) throws Exception;
+
+    public void deleteByIdAdapter(String sql,Object id) throws Exception;
 
     public <T> T getMapper(Class<?> mapperClass);
 

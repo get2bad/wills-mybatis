@@ -2,6 +2,13 @@
 
 > 本仓库用作属于wills的自制mybatis框架的源码，后续会不断完善，敬请期待
 
+## 要实现的功能
+
++ 配置文件完善(详情请见[resource](./src/main/resources))<font color=red>已完成</font>
++ 基本解析 XXMapper.xml 功能(包含Select、Update、Delete、Insert)(暂不支持条件if条件判断)<font color=green>半完成</font>
++ 基本的[BaseMapper<T>](./src/main/java/com/wills/mybatis/template/BaseMapper.java)基础功能(CRUD，类似于MyBatis-Plus)<font color=red>已完成</font>
++ 注解支持(暂不支持 要实现的注解@Sql @Select @Insert @Update @Delete)<font color=orange>未完成</font>
+
 ## 实现步骤
 
 本框架是一个简易的MyBatis框架，在框架端我们要做到一下的操作：
